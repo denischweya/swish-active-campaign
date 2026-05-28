@@ -20,7 +20,8 @@
 		"nameRequired": { "type": "boolean", "default": false },
 		"emailLabel":   { "type": "string",  "default": "Email" },
 		"submitLabel":  { "type": "string",  "default": "Subscribe" },
-		"buttonAlign":  { "type": "string",  "default": "left" }
+		"buttonAlign":  { "type": "string",  "default": "left" },
+		"showLabels":   { "type": "boolean", "default": true }
 	},
 	"editorScript": "file:./index.js",
 	"style":        "file:./style.css",

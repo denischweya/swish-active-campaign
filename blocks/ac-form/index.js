@@ -14,7 +14,7 @@
 	var ToggleControl = wp.components.ToggleControl;
 	var SelectControl = wp.components.SelectControl;
 
-	// Deprecation v0: swish/ac-form before buttonAlign was added.
+	// Deprecation v0: swish/ac-form before buttonAlign / showLabels were added.
 	// save() was null then and is null now, so this just migrates attrs.
 	var deprecatedV0 = {
 		attributes: {
@@ -27,7 +27,7 @@
 		supports: { html: false, multiple: false, reusable: false, inserter: true },
 		save: function () { return null; },
 		migrate: function ( attrs, inner ) {
-			return [ Object.assign( { buttonAlign: 'left' }, attrs ), inner ];
+			return [ Object.assign( { buttonAlign: 'left', showLabels: true }, attrs ), inner ];
 		}
 	};
 
@@ -40,9 +40,19 @@
 
 			var alignClass = 'swish-ac-form__submit-wrap--align-' + ( a.buttonAlign || 'left' );
 
+			var showLabels = a.showLabels !== false;
+
 			return el( Fragment, null,
 				el( InspectorControls, null,
-					el( PanelBody, { title: __( 'Name field', 'swish-active-campaign' ), initialOpen: true },
+					el( PanelBody, { title: __( 'Labels', 'swish-active-campaign' ), initialOpen: true },
+						el( ToggleControl, {
+							label: __( 'Show field labels', 'swish-active-campaign' ),
+							help: __( 'When off, the placeholder still appears inside the input.', 'swish-active-campaign' ),
+							checked: showLabels,
+							onChange: function ( v ) { set( { showLabels: v } ); }
+						} )
+					),
+					el( PanelBody, { title: __( 'Name field', 'swish-active-campaign' ), initialOpen: false },
 						el( ToggleControl, {
 							label: __( 'Show name field', 'swish-active-campaign' ),
 							checked: !! a.showName,
@@ -86,13 +96,21 @@
 					)
 				),
 				el( 'div', blockProps,
-					a.showName && el( 'div', { className: 'swish-ac-form__field' },
-						el( 'label', null, a.nameLabel + ( a.nameRequired ? ' *' : '' ) ),
-						el( 'input', { type: 'text', disabled: true, placeholder: a.nameLabel } )
-					),
+					a.showName ? el( 'div', { className: 'swish-ac-form__field' },
+						showLabels ? el( 'label', null, a.nameLabel + ( a.nameRequired ? ' *' : '' ) ) : null,
+						el( 'input', {
+							type: 'text', disabled: true,
+							placeholder: a.nameLabel,
+							'aria-label': showLabels ? null : a.nameLabel
+						} )
+					) : null,
 					el( 'div', { className: 'swish-ac-form__field' },
-						el( 'label', null, a.emailLabel + ' *' ),
-						el( 'input', { type: 'email', disabled: true, placeholder: a.emailLabel } )
+						showLabels ? el( 'label', null, a.emailLabel + ' *' ) : null,
+						el( 'input', {
+							type: 'email', disabled: true,
+							placeholder: a.emailLabel,
+							'aria-label': showLabels ? null : a.emailLabel
+						} )
 					),
 					el( 'div', { className: 'swish-ac-form__submit-wrap ' + alignClass },
 						el( 'button', { type: 'button', className: 'swish-ac-form__submit', disabled: true }, a.submitLabel )
