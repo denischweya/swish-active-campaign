@@ -20,6 +20,31 @@
 				productName: button.getAttribute( 'data-product-name' )
 			} );
 		} );
+
+		var trigger = cfg.trigger || { type: 'immediate' };
+		if ( trigger.type === 'immediate' ) {
+			button.classList.remove( 'swish-save-trip--hidden' );
+		} else if ( trigger.type === 'time' ) {
+			setTimeout( function () {
+				button.classList.remove( 'swish-save-trip--hidden' );
+			}, Math.max( 0, trigger.seconds * 1000 ) );
+		} else if ( trigger.type === 'scroll' ) {
+			var target = Math.max( 0, Math.min( 100, trigger.percent || 0 ) );
+			var onScroll = function () {
+				var max = document.documentElement.scrollHeight - window.innerHeight;
+				if ( max <= 0 ) {
+					button.classList.remove( 'swish-save-trip--hidden' );
+					window.removeEventListener( 'scroll', onScroll );
+					return;
+				}
+				var pct = ( window.scrollY / max ) * 100;
+				if ( pct >= target ) {
+					button.classList.remove( 'swish-save-trip--hidden' );
+					window.removeEventListener( 'scroll', onScroll );
+				}
+			};
+			window.addEventListener( 'scroll', onScroll, { passive: true } );
+		}
 	} );
 
 	function openModal( product ) {
@@ -97,6 +122,17 @@
 		} );
 		document.addEventListener( 'keydown', onKey );
 
+		var originalLabel = submitBtn.textContent;
+
+		function setBusy( busy ) {
+			submitBtn.disabled = busy;
+			if ( busy ) {
+				submitBtn.innerHTML = '<span class="swish-spinner" aria-hidden="true"></span>' + escapeHtml( originalLabel );
+			} else {
+				submitBtn.textContent = originalLabel;
+			}
+		}
+
 		form.addEventListener( 'submit', function ( e ) {
 			e.preventDefault();
 			errorEl.textContent = '';
@@ -107,7 +143,7 @@
 				return;
 			}
 
-			submitBtn.disabled = true;
+			setBusy( true );
 
 			fetch( cfg.restUrl, {
 				method:      'POST',
@@ -130,12 +166,12 @@
 						showSuccess( modal, res.body.message || copy.success || 'Saved.' );
 					} else {
 						errorEl.textContent = ( res.body && res.body.message ) || copy.errorGeneric || 'Error';
-						submitBtn.disabled  = false;
+						setBusy( false );
 					}
 				} )
 				.catch( function () {
 					errorEl.textContent = copy.errorGeneric || 'Error';
-					submitBtn.disabled  = false;
+					setBusy( false );
 				} );
 		} );
 	}

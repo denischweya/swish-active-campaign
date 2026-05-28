@@ -172,10 +172,16 @@ class Swish_AC_Client {
 		$data = json_decode( $raw, true );
 
 		if ( $code < 200 || $code >= 300 ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( sprintf(
+					'[swish-ac] %s %s -> HTTP %d: %s',
+					$method, $path, $code, substr( (string) $raw, 0, 500 )
+				) );
+			}
 			return new WP_Error(
 				'swish_ac_http_' . $code,
-				sprintf( 'ActiveCampaign returned HTTP %d', $code ),
-				array( 'status' => $code, 'body' => $data ?: $raw )
+				sprintf( 'ActiveCampaign returned HTTP %d on %s', $code, $path ),
+				array( 'status' => $code, 'body' => $data ?: $raw, 'path' => $path )
 			);
 		}
 

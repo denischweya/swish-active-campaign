@@ -37,6 +37,10 @@ class Swish_AC_Plugin {
 			'save_trip_description'   => 'You will receive updates about this trip.',
 			'save_trip_submit_label'  => 'Notify Me',
 			'save_trip_success'       => 'Thanks! Check your inbox for updates.',
+			'save_trip_position'      => 'middle-right',
+			'save_trip_show_trigger'  => 'immediate',
+			'save_trip_show_seconds'  => 0,
+			'save_trip_show_scroll'   => 0,
 		);
 		$saved = get_option( SWISH_AC_OPTION, array() );
 		return wp_parse_args( is_array( $saved ) ? $saved : array(), $defaults );

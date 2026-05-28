@@ -51,6 +51,11 @@ class Swish_AC_Frontend_Save_Trip {
 			'restUrl'   => esc_url_raw( rest_url( SWISH_AC_REST_NS . '/submit' ) ),
 			'nonce'     => wp_create_nonce( 'wp_rest' ),
 			'prefill'   => $prefill,
+			'trigger'   => array(
+				'type'    => $settings['save_trip_show_trigger'],
+				'seconds' => (int) $settings['save_trip_show_seconds'],
+				'percent' => (int) $settings['save_trip_show_scroll'],
+			),
 			'copy'      => array(
 				'heading'     => $settings['save_trip_heading'],
 				'description' => $settings['save_trip_description'],
@@ -77,8 +82,17 @@ class Swish_AC_Frontend_Save_Trip {
 		if ( ! $product ) {
 			return;
 		}
+
+		$settings = Swish_AC_Plugin::get_settings();
+		$position = $settings['save_trip_position'];
+		$show_immediate = $settings['save_trip_show_trigger'] === 'immediate';
+
+		$classes = 'swish-save-trip swish-save-trip--position-' . sanitize_html_class( $position );
+		if ( ! $show_immediate ) {
+			$classes .= ' swish-save-trip--hidden';
+		}
 		?>
-		<button type="button" class="swish-save-trip"
+		<button type="button" class="<?php echo esc_attr( $classes ); ?>"
 			data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
 			data-product-slug="<?php echo esc_attr( $product->get_slug() ); ?>"
 			data-product-name="<?php echo esc_attr( $product->get_name() ); ?>"

@@ -1,8 +1,5 @@
 .swish-save-trip {
 	position: fixed;
-	right: 16px;
-	top: 50%;
-	transform: translateY(-50%);
 	width: 52px;
 	height: 52px;
 	padding: 0;
@@ -16,12 +13,41 @@
 	justify-content: center;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 	z-index: 9998;
-	transition: transform 0.15s ease, box-shadow 0.15s ease;
+	transition: opacity 0.3s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.swish-save-trip:hover,
-.swish-save-trip:focus-visible {
+/* Positions (only override placement; visual rules above stay) */
+.swish-save-trip--position-top-left      { top: 16px; left: 16px; }
+.swish-save-trip--position-top-right     { top: 16px; right: 16px; }
+.swish-save-trip--position-middle-left   { top: 50%; left: 16px;  transform: translateY(-50%); }
+.swish-save-trip--position-middle-right  { top: 50%; right: 16px; transform: translateY(-50%); }
+.swish-save-trip--position-bottom-left   { bottom: 16px; left: 16px; }
+.swish-save-trip--position-bottom-right  { bottom: 16px; right: 16px; }
+
+/* Hidden state (for time/scroll triggers, JS removes when fired) */
+.swish-save-trip--hidden {
+	opacity: 0;
+	pointer-events: none;
+}
+
+/* Hover (preserve translateY for middle positions) */
+.swish-save-trip--position-middle-left:hover,
+.swish-save-trip--position-middle-left:focus-visible,
+.swish-save-trip--position-middle-right:hover,
+.swish-save-trip--position-middle-right:focus-visible {
 	transform: translateY(-50%) scale(1.05);
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+	outline: none;
+}
+.swish-save-trip--position-top-left:hover,
+.swish-save-trip--position-top-left:focus-visible,
+.swish-save-trip--position-top-right:hover,
+.swish-save-trip--position-top-right:focus-visible,
+.swish-save-trip--position-bottom-left:hover,
+.swish-save-trip--position-bottom-left:focus-visible,
+.swish-save-trip--position-bottom-right:hover,
+.swish-save-trip--position-bottom-right:focus-visible {
+	transform: scale(1.05);
 	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 	outline: none;
 }
@@ -35,7 +61,6 @@
 
 .swish-save-trip__tooltip {
 	position: absolute;
-	right: calc(100% + 10px);
 	top: 50%;
 	transform: translateY(-50%);
 	background: #222;
@@ -50,7 +75,15 @@
 	transition: opacity 0.15s ease;
 }
 
-.swish-save-trip__tooltip::after {
+/* Tooltip side: opposite the button's horizontal edge */
+.swish-save-trip--position-top-right .swish-save-trip__tooltip,
+.swish-save-trip--position-middle-right .swish-save-trip__tooltip,
+.swish-save-trip--position-bottom-right .swish-save-trip__tooltip {
+	right: calc(100% + 10px);
+}
+.swish-save-trip--position-top-right .swish-save-trip__tooltip::after,
+.swish-save-trip--position-middle-right .swish-save-trip__tooltip::after,
+.swish-save-trip--position-bottom-right .swish-save-trip__tooltip::after {
 	content: "";
 	position: absolute;
 	left: 100%;
@@ -58,6 +91,22 @@
 	transform: translateY(-50%);
 	border: 5px solid transparent;
 	border-left-color: #222;
+}
+.swish-save-trip--position-top-left .swish-save-trip__tooltip,
+.swish-save-trip--position-middle-left .swish-save-trip__tooltip,
+.swish-save-trip--position-bottom-left .swish-save-trip__tooltip {
+	left: calc(100% + 10px);
+}
+.swish-save-trip--position-top-left .swish-save-trip__tooltip::after,
+.swish-save-trip--position-middle-left .swish-save-trip__tooltip::after,
+.swish-save-trip--position-bottom-left .swish-save-trip__tooltip::after {
+	content: "";
+	position: absolute;
+	right: 100%;
+	top: 50%;
+	transform: translateY(-50%);
+	border: 5px solid transparent;
+	border-right-color: #222;
 }
 
 .swish-save-trip:hover .swish-save-trip__tooltip,
@@ -153,7 +202,9 @@
 }
 
 .swish-ac-modal__submit {
-	display: inline-block;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
 	background: #ffba00;
 	color: #222;
 	border: none;
@@ -165,7 +216,7 @@
 }
 
 .swish-ac-modal__submit:disabled {
-	opacity: 0.7;
+	opacity: 0.85;
 	cursor: wait;
 }
 
@@ -181,10 +232,27 @@
 	font-size: 15px;
 }
 
+/* Inline submit spinner (shared with popup form) */
+.swish-spinner {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border: 2px solid currentColor;
+	border-right-color: transparent;
+	border-radius: 50%;
+	animation: swish-spin 0.6s linear infinite;
+	vertical-align: -2px;
+}
+
+@keyframes swish-spin {
+	to { transform: rotate( 360deg ); }
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.swish-save-trip,
 	.swish-ac-modal,
-	.swish-ac-modal__tooltip {
+	.swish-spinner {
 		transition: none;
+		animation: none;
 	}
 }

@@ -65,6 +65,18 @@ class Swish_AC_Settings {
 		if ( ! empty( $out['ac_api_url'] ) ) {
 			$out['ac_api_url'] = esc_url_raw( $out['ac_api_url'] );
 		}
+
+		$positions = array( 'top-left', 'top-right', 'middle-left', 'middle-right', 'bottom-left', 'bottom-right' );
+		$out['save_trip_position'] = isset( $input['save_trip_position'] ) && in_array( $input['save_trip_position'], $positions, true )
+			? $input['save_trip_position'] : 'middle-right';
+
+		$triggers = array( 'immediate', 'time', 'scroll' );
+		$out['save_trip_show_trigger'] = isset( $input['save_trip_show_trigger'] ) && in_array( $input['save_trip_show_trigger'], $triggers, true )
+			? $input['save_trip_show_trigger'] : 'immediate';
+
+		$out['save_trip_show_seconds'] = isset( $input['save_trip_show_seconds'] ) ? max( 0, intval( $input['save_trip_show_seconds'] ) ) : 0;
+		$out['save_trip_show_scroll']  = isset( $input['save_trip_show_scroll'] )  ? max( 0, min( 100, intval( $input['save_trip_show_scroll'] ) ) ) : 0;
+
 		return $out;
 	}
 
@@ -266,6 +278,57 @@ class Swish_AC_Settings {
 								name="<?php echo esc_attr( SWISH_AC_OPTION ); ?>[save_trip_success]"><?php
 								echo esc_textarea( $s['save_trip_success'] );
 							?></textarea>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="swish-ac-save-trip-position"><?php esc_html_e( 'Button Position', 'swish-active-campaign' ); ?></label></th>
+						<td>
+							<select id="swish-ac-save-trip-position" name="<?php echo esc_attr( SWISH_AC_OPTION ); ?>[save_trip_position]">
+								<?php
+								$positions = array(
+									'top-left'      => __( 'Top left', 'swish-active-campaign' ),
+									'top-right'     => __( 'Top right', 'swish-active-campaign' ),
+									'middle-left'   => __( 'Middle left', 'swish-active-campaign' ),
+									'middle-right'  => __( 'Middle right', 'swish-active-campaign' ),
+									'bottom-left'   => __( 'Bottom left', 'swish-active-campaign' ),
+									'bottom-right'  => __( 'Bottom right', 'swish-active-campaign' ),
+								);
+								foreach ( $positions as $val => $label ) :
+									?>
+									<option value="<?php echo esc_attr( $val ); ?>" <?php selected( $s['save_trip_position'], $val ); ?>>
+										<?php echo esc_html( $label ); ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="swish-ac-save-trip-show-trigger"><?php esc_html_e( 'Show Trigger', 'swish-active-campaign' ); ?></label></th>
+						<td>
+							<select id="swish-ac-save-trip-show-trigger" name="<?php echo esc_attr( SWISH_AC_OPTION ); ?>[save_trip_show_trigger]">
+								<option value="immediate" <?php selected( $s['save_trip_show_trigger'], 'immediate' ); ?>><?php esc_html_e( 'Show immediately', 'swish-active-campaign' ); ?></option>
+								<option value="time"      <?php selected( $s['save_trip_show_trigger'], 'time' ); ?>><?php esc_html_e( 'After time delay', 'swish-active-campaign' ); ?></option>
+								<option value="scroll"    <?php selected( $s['save_trip_show_trigger'], 'scroll' ); ?>><?php esc_html_e( 'After scroll %', 'swish-active-campaign' ); ?></option>
+							</select>
+							<p class="description"><?php esc_html_e( 'Controls when the floating button fades into view.', 'swish-active-campaign' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="swish-ac-save-trip-show-seconds"><?php esc_html_e( 'Delay (seconds)', 'swish-active-campaign' ); ?></label></th>
+						<td>
+							<input type="number" id="swish-ac-save-trip-show-seconds" class="small-text" min="0" step="1"
+								name="<?php echo esc_attr( SWISH_AC_OPTION ); ?>[save_trip_show_seconds]"
+								value="<?php echo esc_attr( (int) $s['save_trip_show_seconds'] ); ?>">
+							<p class="description"><?php esc_html_e( 'Used when Show Trigger is "After time delay".', 'swish-active-campaign' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="swish-ac-save-trip-show-scroll"><?php esc_html_e( 'Scroll past (%)', 'swish-active-campaign' ); ?></label></th>
+						<td>
+							<input type="number" id="swish-ac-save-trip-show-scroll" class="small-text" min="0" max="100" step="1"
+								name="<?php echo esc_attr( SWISH_AC_OPTION ); ?>[save_trip_show_scroll]"
+								value="<?php echo esc_attr( (int) $s['save_trip_show_scroll'] ); ?>">
+							<p class="description"><?php esc_html_e( 'Used when Show Trigger is "After scroll %".', 'swish-active-campaign' ); ?></p>
 						</td>
 					</tr>
 				</table>

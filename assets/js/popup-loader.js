@@ -147,6 +147,18 @@
 		var popupWrap = form.closest( '.swish-ac-popup' );
 		var successMsg = ( popupWrap && popupWrap.getAttribute( 'data-success' ) ) || 'Thanks!';
 
+		var originalLabel = submitBtn ? submitBtn.textContent : '';
+
+		function setBusy( busy ) {
+			if ( ! submitBtn ) return;
+			submitBtn.disabled = busy;
+			if ( busy ) {
+				submitBtn.innerHTML = '<span class="swish-spinner" aria-hidden="true"></span>' + escapeHtml( originalLabel );
+			} else {
+				submitBtn.textContent = originalLabel;
+			}
+		}
+
 		form.addEventListener( 'submit', function ( e ) {
 			e.preventDefault();
 			if ( errorEl ) errorEl.textContent = '';
@@ -162,7 +174,7 @@
 				return;
 			}
 
-			if ( submitBtn ) submitBtn.disabled = true;
+			setBusy( true );
 
 			fetch( cfg.restUrl, {
 				method: 'POST',
@@ -185,12 +197,12 @@
 						showSuccess( dialog, successMsg );
 					} else {
 						if ( errorEl ) errorEl.textContent = ( res.body && res.body.message ) || 'Something went wrong.';
-						if ( submitBtn ) submitBtn.disabled = false;
+						setBusy( false );
 					}
 				} )
 				.catch( function () {
 					if ( errorEl ) errorEl.textContent = 'Network error. Please try again.';
-					if ( submitBtn ) submitBtn.disabled = false;
+					setBusy( false );
 				} );
 		} );
 	}

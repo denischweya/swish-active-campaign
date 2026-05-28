@@ -54,8 +54,32 @@
 	outline: none;
 }
 
+/* Submit button + inline spinner */
+.swish-ac-popup-form__submit {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.swish-spinner {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border: 2px solid currentColor;
+	border-right-color: transparent;
+	border-radius: 50%;
+	animation: swish-spin 0.6s linear infinite;
+	vertical-align: -2px;
+}
+
+@keyframes swish-spin {
+	to { transform: rotate( 360deg ); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-	.swish-ac-popup-modal {
+	.swish-ac-popup-modal,
+	.swish-spinner {
 		transition: none;
+		animation: none;
 	}
 }
