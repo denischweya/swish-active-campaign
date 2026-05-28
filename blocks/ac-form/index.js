@@ -13,6 +13,8 @@
 	var TextControl   = wp.components.TextControl;
 	var ToggleControl = wp.components.ToggleControl;
 	var SelectControl = wp.components.SelectControl;
+	var RangeControl  = wp.components.RangeControl;
+	var ColorPalette  = wp.components.ColorPalette;
 
 	// Deprecation v0: swish/ac-form before buttonAlign / showLabels were added.
 	// save() was null then and is null now, so this just migrates attrs.
@@ -27,7 +29,15 @@
 		supports: { html: false, multiple: false, reusable: false, inserter: true },
 		save: function () { return null; },
 		migrate: function ( attrs, inner ) {
-			return [ Object.assign( { buttonAlign: 'left', showLabels: true }, attrs ), inner ];
+			return [
+				Object.assign( {
+					buttonAlign: 'left', showLabels: true,
+					buttonBg: '', buttonText: '',
+					buttonBorderWidth: 0, buttonBorderColor: '',
+					buttonRadius: 4
+				}, attrs ),
+				inner
+			];
 		}
 	};
 
@@ -41,6 +51,20 @@
 			var alignClass = 'swish-ac-form__submit-wrap--align-' + ( a.buttonAlign || 'left' );
 
 			var showLabels = a.showLabels !== false;
+
+			function buttonStyle() {
+				var s = {};
+				if ( a.buttonBg )   s.background = a.buttonBg;
+				if ( a.buttonText ) s.color      = a.buttonText;
+				var bw = parseInt( a.buttonBorderWidth, 10 ) || 0;
+				if ( bw > 0 ) {
+					s.borderStyle = 'solid';
+					s.borderWidth = bw + 'px';
+					s.borderColor = a.buttonBorderColor || '#000';
+				}
+				if ( a.buttonRadius != null ) s.borderRadius = a.buttonRadius + 'px';
+				return s;
+			}
 
 			return el( Fragment, null,
 				el( InspectorControls, null,
@@ -93,6 +117,41 @@
 							],
 							onChange: function ( v ) { set( { buttonAlign: v } ); }
 						} )
+					),
+					el( PanelBody, { title: __( 'Button style', 'swish-active-campaign' ), initialOpen: false },
+						el( 'label', { className: 'components-base-control__label' },
+							__( 'Background', 'swish-active-campaign' )
+						),
+						el( ColorPalette, {
+							value: a.buttonBg || '',
+							onChange: function ( v ) { set( { buttonBg: v || '' } ); }
+						} ),
+						el( 'label', { className: 'components-base-control__label' },
+							__( 'Text color', 'swish-active-campaign' )
+						),
+						el( ColorPalette, {
+							value: a.buttonText || '',
+							onChange: function ( v ) { set( { buttonText: v || '' } ); }
+						} ),
+						el( RangeControl, {
+							label: __( 'Border width (px)', 'swish-active-campaign' ),
+							value: a.buttonBorderWidth || 0,
+							onChange: function ( v ) { set( { buttonBorderWidth: parseInt( v, 10 ) || 0 } ); },
+							min: 0, max: 8, step: 1
+						} ),
+						( a.buttonBorderWidth || 0 ) > 0 ? el( 'label', { className: 'components-base-control__label' },
+							__( 'Border color', 'swish-active-campaign' )
+						) : null,
+						( a.buttonBorderWidth || 0 ) > 0 ? el( ColorPalette, {
+							value: a.buttonBorderColor || '',
+							onChange: function ( v ) { set( { buttonBorderColor: v || '' } ); }
+						} ) : null,
+						el( RangeControl, {
+							label: __( 'Border radius (px)', 'swish-active-campaign' ),
+							value: a.buttonRadius != null ? a.buttonRadius : 4,
+							onChange: function ( v ) { set( { buttonRadius: parseInt( v, 10 ) || 0 } ); },
+							min: 0, max: 40, step: 1
+						} )
 					)
 				),
 				el( 'div', blockProps,
@@ -113,7 +172,12 @@
 						} )
 					),
 					el( 'div', { className: 'swish-ac-form__submit-wrap ' + alignClass },
-						el( 'button', { type: 'button', className: 'swish-ac-form__submit', disabled: true }, a.submitLabel )
+						el( 'button', {
+							type: 'button',
+							className: 'swish-ac-form__submit',
+							disabled: true,
+							style: buttonStyle()
+						}, a.submitLabel )
 					)
 				)
 			);

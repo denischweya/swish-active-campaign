@@ -20,8 +20,13 @@
 		"nameRequired": { "type": "boolean", "default": false },
 		"emailLabel":   { "type": "string",  "default": "Email" },
 		"submitLabel":  { "type": "string",  "default": "Subscribe" },
-		"buttonAlign":  { "type": "string",  "default": "left" },
-		"showLabels":   { "type": "boolean", "default": true }
+		"buttonAlign":       { "type": "string",  "default": "left" },
+		"showLabels":        { "type": "boolean", "default": true },
+		"buttonBg":          { "type": "string",  "default": "" },
+		"buttonText":        { "type": "string",  "default": "" },
+		"buttonBorderWidth": { "type": "number",  "default": 0 },
+		"buttonBorderColor": { "type": "string",  "default": "" },
+		"buttonRadius":      { "type": "number",  "default": 4 }
 	},
 	"editorScript": "file:./index.js",
 	"style":        "file:./style.css",
