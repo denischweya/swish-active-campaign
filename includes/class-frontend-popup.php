@@ -107,8 +107,9 @@ class Swish_AC_Frontend_Popup {
 				$pts = get_post_meta( $popup_id, '_swish_targeting_post_types', true );
 				$pts = is_array( $pts ) ? $pts : array();
 				if ( empty( $pts ) ) return false;
-				$current = $this->current_post_type();
-				return $current && in_array( $current, $pts, true );
+				$current = $this->current_post_types();
+				$this->debug_log( 'targeting: current types are [' . implode( ', ', $current ) . '], popup wants [' . implode( ', ', $pts ) . ']' );
+				return (bool) array_intersect( $pts, $current );
 			case 'urls':
 				$patterns = get_post_meta( $popup_id, '_swish_targeting_urls', true );
 				return $this->any_pattern_matches( is_array( $patterns ) ? $patterns : array() );
@@ -119,14 +120,23 @@ class Swish_AC_Frontend_Popup {
 		return false;
 	}
 
-	private function current_post_type() {
+	/**
+	 * The set of post-type values the current request matches. A static front
+	 * page matches both 'home' AND its underlying post type ('page'), so users
+	 * targeting either get the popup. Posts-as-front matches just 'home'.
+	 */
+	private function current_post_types() {
+		$types = array();
+		if ( is_front_page() || is_home() ) {
+			$types[] = 'home';
+		}
 		if ( is_singular() ) {
-			return get_post_type( get_queried_object_id() );
+			$pt = get_post_type( get_queried_object_id() );
+			if ( $pt ) {
+				$types[] = $pt;
+			}
 		}
-		if ( is_home() || is_front_page() ) {
-			return 'home';
-		}
-		return null;
+		return array_values( array_unique( $types ) );
 	}
 
 	private function any_pattern_matches( array $patterns ) {

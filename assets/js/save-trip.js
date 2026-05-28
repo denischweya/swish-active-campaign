@@ -29,21 +29,22 @@
 				button.classList.remove( 'swish-save-trip--hidden' );
 			}, Math.max( 0, trigger.seconds * 1000 ) );
 		} else if ( trigger.type === 'scroll' ) {
-			var target = Math.max( 0, Math.min( 100, trigger.percent || 0 ) );
-			var onScroll = function () {
+			var target = Math.max( 0, Math.min( 100, parseFloat( trigger.percent ) || 0 ) );
+			var check = function () {
 				var max = document.documentElement.scrollHeight - window.innerHeight;
-				if ( max <= 0 ) {
-					button.classList.remove( 'swish-save-trip--hidden' );
-					window.removeEventListener( 'scroll', onScroll );
-					return;
-				}
-				var pct = ( window.scrollY / max ) * 100;
-				if ( pct >= target ) {
-					button.classList.remove( 'swish-save-trip--hidden' );
-					window.removeEventListener( 'scroll', onScroll );
-				}
+				var pct = max > 0 ? ( window.scrollY / max ) * 100 : 100;
+				return pct >= target;
 			};
-			window.addEventListener( 'scroll', onScroll, { passive: true } );
+			var reveal = function () {
+				button.classList.remove( 'swish-save-trip--hidden' );
+				window.removeEventListener( 'scroll', onScroll );
+			};
+			var onScroll = function () { if ( check() ) reveal(); };
+			if ( check() ) {
+				reveal();
+			} else {
+				window.addEventListener( 'scroll', onScroll, { passive: true } );
+			}
 		}
 	} );
 

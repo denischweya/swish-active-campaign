@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Swish Active Campaign
  * Description: ActiveCampaign integration: lead-magnet popups (CPT + custom block) and a Save Trip button for WooCommerce products.
- * Version: 0.1.0
+ * Version: 0.2.0
  * Author: Denis Bosire
  * Text Domain: swish-active-campaign
  * Requires PHP: 7.4

@@ -4,7 +4,7 @@ Tags: activecampaign, popup, lead magnet, woocommerce, email marketing, newslett
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 0.1.0
+Stable tag: 0.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -90,6 +90,12 @@ Leave the setting on **— None —** to skip the field write entirely.
 No. Form submissions hit `POST /wp-json/swish-ac/v1/submit`, which proxies to the AC v3 API server-side with the stored credentials.
 
 == Changelog ==
+
+= 0.2.0 - 2026-05-29 =
+
+* Save Trip can now write the product title to an ActiveCampaign custom field (e.g. "Tours") on the contact, appended comma-separated and deduped so a contact's full saved-trip list is preserved. New "Save product title to field" dropdown in Settings, sourced live from your AC custom fields.
+* Fix: Homepage targeting now works on sites with a static front page. The detection used to return the page's post type (e.g. `page`) when `is_singular()` matched first; it now also reports `home` when `is_front_page()` is true. A static front page matches both `home` and `page`, so either targeting choice fires.
+* Fix: Scroll-depth trigger checks immediately on load — popups (and the Save Trip button) fire if the user already scrolled past the threshold, or if the page is too short to scroll at all. Previously they would only fire on subsequent scroll events.
 
 = 0.1.0 - 2026-05-28 =
 Initial release.

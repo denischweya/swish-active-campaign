@@ -42,16 +42,25 @@
 				setTimeout( function () { openModal( popup ); }, Math.max( 0, t.seconds * 1000 ) );
 				break;
 			case 'scroll':
-				var onScroll = function () {
+				var target = parseFloat( t.percent );
+				if ( isNaN( target ) ) target = 0;
+				var check = function () {
 					var max = document.documentElement.scrollHeight - window.innerHeight;
-					if ( max <= 0 ) return;
-					var pct = ( window.scrollY / max ) * 100;
-					if ( pct >= t.percent ) {
+					var pct = max > 0 ? ( window.scrollY / max ) * 100 : 100;
+					return pct >= target;
+				};
+				var onScroll = function () {
+					if ( check() ) {
 						window.removeEventListener( 'scroll', onScroll );
 						openModal( popup );
 					}
 				};
-				window.addEventListener( 'scroll', onScroll, { passive: true } );
+				dbg( 'popup', popup.id, 'scroll trigger target:', target + '%' );
+				if ( check() ) {
+					openModal( popup );
+				} else {
+					window.addEventListener( 'scroll', onScroll, { passive: true } );
+				}
 				break;
 			case 'exit':
 				var onLeave = function ( e ) {
