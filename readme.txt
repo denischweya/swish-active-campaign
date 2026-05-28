@@ -72,6 +72,19 @@ The Swish AC Form child block exposes:
 
 In the popup block's **ActiveCampaign** panel — the List dropdown is sourced live from your AC account (each option shows `Name (#id)`). The same dropdown appears in the plugin Settings for the default list and the Save Trip override.
 
+= How do I save the product title to a custom field (e.g. "Tours") on the contact? =
+
+You need to **create the custom field in ActiveCampaign first** — the plugin does not create it for you. The setup is:
+
+1. In ActiveCampaign, go to **Contacts → Fields → Add a field**.
+2. Give it a title (e.g. `Tours`), set the type to **Text input** (or **Text area** if you expect many trips), and save.
+3. Back in WordPress, go to **Settings → Swish AC → Save Trip → "Save product title to field"** and pick the field you just created from the dropdown. (If you don't see it immediately, save settings to invalidate the 5-minute cache and reload.)
+4. Save the settings.
+
+On every Save Trip submit, the plugin will read the contact's current value for that field, append the product title if it's not already there, and write it back as a comma-separated string. A contact who saves "Hawaii Camp" and then "Costa Rica Retreat" ends up with `Tours = "Hawaii Camp, Costa Rica Retreat"`.
+
+Leave the setting on **— None —** to skip the field write entirely.
+
 = Is the AC API key exposed to the browser? =
 
 No. Form submissions hit `POST /wp-json/swish-ac/v1/submit`, which proxies to the AC v3 API server-side with the stored credentials.
