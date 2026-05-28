@@ -54,6 +54,7 @@ class Swish_AC_Settings {
 			'default_list_id', 'save_trip_list_id',
 			'save_trip_base_tag', 'save_trip_tag_pattern',
 			'save_trip_heading', 'save_trip_submit_label',
+			'save_trip_field_id',
 		);
 		foreach ( $fields_text as $f ) {
 			$out[ $f ] = isset( $input[ $f ] ) ? sanitize_text_field( $input[ $f ] ) : '';
@@ -137,23 +138,31 @@ class Swish_AC_Settings {
 	 * @param bool   $allow_empty     If true, prepend a "Use default" empty option.
 	 */
 	private function render_list_select( $id, $name, $current, $lists, $allow_empty ) {
-		if ( empty( $lists ) ) {
+		$this->render_id_select( $id, $name, $current, $lists, $allow_empty, __( '— Use default —', 'swish-active-campaign' ), __( 'List ID', 'swish-active-campaign' ) );
+	}
+
+	/**
+	 * Render a <select> of {id, name} items, with optional empty option.
+	 * Falls back to a plain text input when the items list is empty.
+	 */
+	private function render_id_select( $id, $name, $current, $items, $allow_empty, $empty_label, $placeholder = '' ) {
+		if ( empty( $items ) ) {
 			?>
 			<input type="text" id="<?php echo esc_attr( $id ); ?>" class="small-text"
 				name="<?php echo esc_attr( $name ); ?>"
 				value="<?php echo esc_attr( $current ); ?>"
-				placeholder="<?php esc_attr_e( 'List ID', 'swish-active-campaign' ); ?>">
+				placeholder="<?php echo esc_attr( $placeholder ); ?>">
 			<?php
 			return;
 		}
 		?>
 		<select id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>">
 			<?php if ( $allow_empty ) : ?>
-				<option value="" <?php selected( $current, '' ); ?>><?php esc_html_e( '— Use default —', 'swish-active-campaign' ); ?></option>
+				<option value="" <?php selected( $current, '' ); ?>><?php echo esc_html( $empty_label ); ?></option>
 			<?php endif; ?>
-			<?php foreach ( $lists as $list ) : ?>
-				<option value="<?php echo esc_attr( $list['id'] ); ?>" <?php selected( $current, $list['id'] ); ?>>
-					<?php echo esc_html( $list['name'] . ' (#' . $list['id'] . ')' ); ?>
+			<?php foreach ( $items as $item ) : ?>
+				<option value="<?php echo esc_attr( $item['id'] ); ?>" <?php selected( $current, $item['id'] ); ?>>
+					<?php echo esc_html( $item['name'] . ' (#' . $item['id'] . ')' ); ?>
 				</option>
 			<?php endforeach; ?>
 		</select>
@@ -169,6 +178,11 @@ class Swish_AC_Settings {
 		$list_error = is_wp_error( $lists ) ? $lists->get_error_message() : '';
 		if ( is_wp_error( $lists ) ) {
 			$lists = array();
+		}
+
+		$ac_fields = Swish_AC_Rest_Fields::get_cached_fields();
+		if ( is_wp_error( $ac_fields ) ) {
+			$ac_fields = array();
 		}
 		?>
 		<div class="wrap">
@@ -329,6 +343,21 @@ class Swish_AC_Settings {
 								name="<?php echo esc_attr( SWISH_AC_OPTION ); ?>[save_trip_show_scroll]"
 								value="<?php echo esc_attr( (int) $s['save_trip_show_scroll'] ); ?>">
 							<p class="description"><?php esc_html_e( 'Used when Show Trigger is "After scroll %".', 'swish-active-campaign' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="swish-ac-save-trip-field"><?php esc_html_e( 'Save product title to field', 'swish-active-campaign' ); ?></label></th>
+						<td>
+							<?php $this->render_id_select(
+								'swish-ac-save-trip-field',
+								SWISH_AC_OPTION . '[save_trip_field_id]',
+								$s['save_trip_field_id'],
+								$ac_fields,
+								true,
+								__( '— None —', 'swish-active-campaign' ),
+								__( 'AC field ID', 'swish-active-campaign' )
+							); ?>
+							<p class="description"><?php esc_html_e( 'When a trip is saved, the product title is appended (comma-separated, deduped) to this ActiveCampaign custom field on the contact. e.g. choose "Tours" to build up a list of every trip the contact has saved.', 'swish-active-campaign' ); ?></p>
 						</td>
 					</tr>
 				</table>

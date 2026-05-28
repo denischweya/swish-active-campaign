@@ -107,6 +107,7 @@ Initial release.
 * Floating bookmark button on `is_product()` pages.
 * Configurable screen position (6 corner/edge presets) and show-trigger (immediate / time delay / scroll %).
 * Pre-fills email for logged-in users; tags contact with base tag + `trip:{slug}` dynamic tag.
+* Optional "Save product title to field" setting: writes the product title to an ActiveCampaign custom field (e.g. "Tours") on the contact, appended comma-separated and deduped so a contact's full saved-trip list is preserved.
 * Circular close button.
 
 **UX & DX**

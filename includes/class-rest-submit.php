@@ -69,6 +69,7 @@ class Swish_AC_Rest_Submit {
 
 		$product_id   = absint( $request->get_param( 'product_id' ) );
 		$product_slug = sanitize_title( (string) $request->get_param( 'product_slug' ) );
+		$product_name = sanitize_text_field( (string) $request->get_param( 'product_name' ) );
 
 		if ( ! $product_id ) {
 			return $this->error( 'missing_product' );
@@ -82,9 +83,26 @@ class Swish_AC_Rest_Submit {
 			$tags[] = str_replace( '{slug}', $product_slug, $settings['save_trip_tag_pattern'] );
 		}
 
-		return $this->push_to_ac( $email, null, $list_id, $tags, array(
+		$result = $this->do_ac_subscribe( $email, null, $list_id, $tags );
+		if ( is_wp_error( $result ) ) {
+			return $this->wp_error_response( $result );
+		}
+		$contact = $result;
+
+		// Append the product title to a custom field, if one is configured.
+		if ( ! empty( $settings['save_trip_field_id'] ) && $product_name !== '' ) {
+			$this->append_field_value(
+				Swish_AC_Plugin::client(),
+				$contact['id'],
+				$settings['save_trip_field_id'],
+				$product_name
+			);
+		}
+
+		return new WP_REST_Response( array(
+			'ok'      => true,
 			'message' => $settings['save_trip_success'],
-		) );
+		), 200 );
 	}
 
 	private function handle_popup( WP_REST_Request $request, $email ) {
@@ -105,23 +123,32 @@ class Swish_AC_Rest_Submit {
 
 		$name = sanitize_text_field( (string) $request->get_param( 'name' ) );
 
-		return $this->push_to_ac( $email, $name ?: null, $list_id, $tags );
+		$result = $this->do_ac_subscribe( $email, $name ?: null, $list_id, $tags );
+		if ( is_wp_error( $result ) ) {
+			return $this->wp_error_response( $result );
+		}
+
+		return new WP_REST_Response( array( 'ok' => true ), 200 );
 	}
 
-	private function push_to_ac( $email, $first_name, $list_id, $tags, $extra = array() ) {
-		$client  = Swish_AC_Plugin::client();
+	/**
+	 * Upsert contact, subscribe to list, apply tags.
+	 * Returns the AC contact array on success or WP_Error.
+	 */
+	private function do_ac_subscribe( $email, $first_name, $list_id, $tags ) {
+		$client = Swish_AC_Plugin::client();
 		if ( ! $client->is_configured() ) {
-			return $this->error( 'ac_not_configured' );
+			return new WP_Error( 'ac_not_configured', __( 'ActiveCampaign API URL and key are not set.', 'swish-active-campaign' ) );
 		}
 
 		$contact = $client->upsert_contact( $email, $first_name );
 		if ( is_wp_error( $contact ) ) {
-			return $this->wp_error_response( $contact );
+			return $contact;
 		}
 
 		$list_result = $client->add_contact_to_list( $contact['id'], $list_id );
 		if ( is_wp_error( $list_result ) ) {
-			return $this->wp_error_response( $list_result );
+			return $list_result;
 		}
 
 		foreach ( $tags as $tag_name ) {
@@ -131,12 +158,33 @@ class Swish_AC_Rest_Submit {
 			}
 			$tag_id = $client->find_or_create_tag( $tag_name );
 			if ( is_wp_error( $tag_id ) ) {
-				continue; // Soft fail on tag errors — contact is already saved.
+				continue; // Soft fail — contact is already saved.
 			}
 			$client->add_tag_to_contact( $contact['id'], $tag_id );
 		}
 
-		return new WP_REST_Response( array_merge( array( 'ok' => true ), $extra ), 200 );
+		return $contact;
+	}
+
+	/**
+	 * Read the current contact field value, append $value if not already present,
+	 * and write it back as a comma-separated string. Failures are silent —
+	 * the contact + list + tag work has already succeeded.
+	 */
+	private function append_field_value( $client, $contact_id, $field_id, $value ) {
+		$existing = $client->get_field_value( $contact_id, $field_id );
+		if ( is_wp_error( $existing ) ) {
+			return;
+		}
+
+		$existing_value = ( is_array( $existing ) && isset( $existing['value'] ) ) ? (string) $existing['value'] : '';
+		$items = array_values( array_filter( array_map( 'trim', explode( ',', $existing_value ) ), 'strlen' ) );
+
+		if ( ! in_array( $value, $items, true ) ) {
+			$items[] = $value;
+		}
+
+		$client->set_field_value( $contact_id, $field_id, implode( ', ', $items ) );
 	}
 
 	private function error( $code, $status = 400 ) {

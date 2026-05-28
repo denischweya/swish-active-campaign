@@ -34,7 +34,7 @@
 	height: 30px;
 	border: none;
 	border-radius: 50%;
-	background: var( --swish-accent, #ffba00 );
+	background: var(--swish-accent, #ffba00);
 	color: #fff;
 	font-size: 18px;
 	line-height: 1;
@@ -44,13 +44,13 @@
 	justify-content: center;
 	padding: 0;
 	z-index: 2;
-	box-shadow: 0 2px 6px rgba( 0, 0, 0, 0.15 );
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 	transition: transform 0.15s ease;
 }
 
 .swish-ac-popup-modal__close:hover,
 .swish-ac-popup-modal__close:focus-visible {
-	transform: scale( 1.1 );
+	transform: scale(1.1);
 	outline: none;
 }
 
@@ -59,6 +59,7 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
+	font-weight: 800 !important;
 }
 
 .swish-spinner {
@@ -73,10 +74,13 @@
 }
 
 @keyframes swish-spin {
-	to { transform: rotate( 360deg ); }
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {
+
 	.swish-ac-popup-modal,
 	.swish-spinner {
 		transition: none;

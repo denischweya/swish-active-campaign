@@ -24,6 +24,7 @@ require_once SWISH_AC_DIR . 'includes/class-settings.php';
 require_once SWISH_AC_DIR . 'includes/class-rest-submit.php';
 require_once SWISH_AC_DIR . 'includes/class-rest-tags.php';
 require_once SWISH_AC_DIR . 'includes/class-rest-lists.php';
+require_once SWISH_AC_DIR . 'includes/class-rest-fields.php';
 require_once SWISH_AC_DIR . 'includes/class-cpt-popup.php';
 require_once SWISH_AC_DIR . 'includes/class-blocks.php';
 require_once SWISH_AC_DIR . 'includes/class-frontend-save-trip.php';

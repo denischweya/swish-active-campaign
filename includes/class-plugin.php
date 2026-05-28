@@ -19,6 +19,7 @@ class Swish_AC_Plugin {
 		Swish_AC_Rest_Submit::instance();
 		Swish_AC_Rest_Tags::instance();
 		Swish_AC_Rest_Lists::instance();
+		Swish_AC_Rest_Fields::instance();
 		Swish_AC_CPT_Popup::instance();
 		Swish_AC_Blocks::instance();
 		Swish_AC_Frontend_Save_Trip::instance();
@@ -41,6 +42,7 @@ class Swish_AC_Plugin {
 			'save_trip_show_trigger'  => 'immediate',
 			'save_trip_show_seconds'  => 0,
 			'save_trip_show_scroll'   => 0,
+			'save_trip_field_id'      => '',
 		);
 		$saved = get_option( SWISH_AC_OPTION, array() );
 		return wp_parse_args( is_array( $saved ) ? $saved : array(), $defaults );

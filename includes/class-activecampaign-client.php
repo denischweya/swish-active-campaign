@@ -129,6 +129,55 @@ class Swish_AC_Client {
 	}
 
 	/**
+	 * List AC custom contact fields.
+	 */
+	public function list_fields( $limit = 100 ) {
+		return $this->request( 'GET', '/api/3/fields', null, array( 'limit' => (int) $limit ) );
+	}
+
+	/**
+	 * Fetch the current field value (if any) for a contact + field pair.
+	 * Returns the fieldValue object (with 'id' and 'value'), null if none,
+	 * or WP_Error on transport failure.
+	 */
+	public function get_field_value( $contact_id, $field_id ) {
+		$result = $this->request( 'GET', '/api/3/fieldValues', null, array(
+			'filters[fieldid]'   => (int) $field_id,
+			'filters[contactid]' => (int) $contact_id,
+		) );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+		if ( ! empty( $result['fieldValues'] ) && is_array( $result['fieldValues'] ) ) {
+			return $result['fieldValues'][0];
+		}
+		return null;
+	}
+
+	/**
+	 * Create or update a custom field value for a contact.
+	 */
+	public function set_field_value( $contact_id, $field_id, $value ) {
+		$existing = $this->get_field_value( $contact_id, $field_id );
+		if ( is_wp_error( $existing ) ) {
+			return $existing;
+		}
+
+		$payload = array(
+			'fieldValue' => array(
+				'contact' => (int) $contact_id,
+				'field'   => (int) $field_id,
+				'value'   => (string) $value,
+			),
+		);
+
+		if ( $existing && isset( $existing['id'] ) ) {
+			return $this->request( 'PUT', '/api/3/fieldValues/' . (int) $existing['id'], $payload );
+		}
+		return $this->request( 'POST', '/api/3/fieldValues', $payload );
+	}
+
+	/**
 	 * Low-level request.
 	 *
 	 * @param string $method
