@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Swish Active Campaign
  * Description: ActiveCampaign integration: lead-magnet popups (CPT + custom block) and a Save Trip button for WooCommerce products.
- * Version: 0.2.0
+ * Version: 0.3.0
  * Author: Denis Bosire
  * Text Domain: swish-active-campaign
  * Requires PHP: 7.4
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SWISH_AC_VERSION', '0.1.0' );
+define( 'SWISH_AC_VERSION', '0.3.0' );
 define( 'SWISH_AC_FILE', __FILE__ );
 define( 'SWISH_AC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SWISH_AC_URL', plugin_dir_url( __FILE__ ) );
@@ -27,6 +27,7 @@ require_once SWISH_AC_DIR . 'includes/class-rest-lists.php';
 require_once SWISH_AC_DIR . 'includes/class-rest-fields.php';
 require_once SWISH_AC_DIR . 'includes/class-cpt-popup.php';
 require_once SWISH_AC_DIR . 'includes/class-blocks.php';
+require_once SWISH_AC_DIR . 'includes/class-product-popup.php';
 require_once SWISH_AC_DIR . 'includes/class-frontend-save-trip.php';
 require_once SWISH_AC_DIR . 'includes/class-frontend-popup.php';
 require_once SWISH_AC_DIR . 'includes/class-plugin.php';

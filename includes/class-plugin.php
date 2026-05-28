@@ -22,6 +22,7 @@ class Swish_AC_Plugin {
 		Swish_AC_Rest_Fields::instance();
 		Swish_AC_CPT_Popup::instance();
 		Swish_AC_Blocks::instance();
+		Swish_AC_Product_Popup::instance();
 		Swish_AC_Frontend_Save_Trip::instance();
 		Swish_AC_Frontend_Popup::instance();
 	}

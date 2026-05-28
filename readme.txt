@@ -4,7 +4,7 @@ Tags: activecampaign, popup, lead magnet, woocommerce, email marketing, newslett
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -90,6 +90,10 @@ Leave the setting on **— None —** to skip the field write entirely.
 No. Form submissions hit `POST /wp-json/swish-ac/v1/submit`, which proxies to the AC v3 API server-side with the stored credentials.
 
 == Changelog ==
+
+= 0.3.0 - 2026-05-29 =
+
+* Per-product popup override. WooCommerce products now have a new "Swish Popup" tab in the Product data box where you can pick a specific popup to show on that product page. When set, that popup is shown instead of whatever popups would normally match — useful for "this trip has a tailored offer" cases. The chosen popup's own auth filter, trigger, and frequency cap still apply.
 
 = 0.2.0 - 2026-05-29 =
 
