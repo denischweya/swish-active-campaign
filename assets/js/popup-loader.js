@@ -2,18 +2,35 @@
 	'use strict';
 
 	if ( typeof swishAcPopups === 'undefined' || ! Array.isArray( swishAcPopups.popups ) ) {
+		if ( /[?&]swish_debug=1/.test( location.search ) ) {
+			console.log( '[swish] swishAcPopups payload missing — popup-loader.js loaded but no popups for this page.' );
+		}
 		return;
 	}
 
 	var cfg     = swishAcPopups;
 	var popups  = cfg.popups;
 	var storage = safeStorage();
+	var DEBUG   = /[?&]swish_debug=1/.test( location.search );
+	var PREVIEW = /[?&]swish_preview=1/.test( location.search );
+
+	function dbg() {
+		if ( ! DEBUG ) return;
+		var a = Array.prototype.slice.call( arguments );
+		a.unshift( '[swish]' );
+		console.log.apply( console, a );
+	}
+
+	dbg( 'payload', cfg );
+	dbg( 'popups available', popups.length );
 
 	document.addEventListener( 'DOMContentLoaded', function () {
 		popups.forEach( function ( popup ) {
-			if ( isBlocked( popup ) ) {
+			if ( ! PREVIEW && isBlocked( popup ) ) {
+				dbg( 'popup', popup.id, 'blocked by frequency cap — pass ?swish_preview=1 to bypass.' );
 				return;
 			}
+			dbg( 'popup', popup.id, 'attaching trigger', popup.trigger );
 			attachTrigger( popup );
 		} );
 	} );

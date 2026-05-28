@@ -58,16 +58,22 @@ class Swish_AC_Frontend_Popup {
 			'no_found_rows'  => true,
 		) );
 
+		$this->debug_log( 'found ' . count( $query->posts ) . ' published popups' );
+
 		$out = array();
 		foreach ( $query->posts as $post ) {
 			if ( ! $this->matches_current_request( $post->ID ) ) {
+				$this->debug_log( 'popup ' . $post->ID . ' (' . $post->post_title . ') did not match targeting for ' . ( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '' ) );
 				continue;
 			}
 
 			$html = $this->render_popup_body( $post );
 			if ( $html === '' ) {
+				$this->debug_log( 'popup ' . $post->ID . ' rendered to empty HTML (no swish/popup block found in content)' );
 				continue;
 			}
+
+			$this->debug_log( 'popup ' . $post->ID . ' matched and rendered' );
 
 			$out[] = array(
 				'id'      => $post->ID,
@@ -134,6 +140,12 @@ class Swish_AC_Frontend_Popup {
 			if ( preg_match( $regex, $path ) ) return true;
 		}
 		return false;
+	}
+
+	private function debug_log( $msg ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( '[swish-ac] ' . $msg );
+		}
 	}
 
 	private function render_popup_body( WP_Post $post ) {
