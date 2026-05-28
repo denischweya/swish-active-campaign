@@ -1,0 +1,48 @@
+.swish-ac-popup-modal {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.55);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 9999;
+	padding: 16px;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+}
+
+.swish-ac-popup-modal.is-open {
+	opacity: 1;
+}
+
+/* Transparent positioning helper. The popup card itself (.swish-ac-popup)
+   owns background, padding, border-radius, and max-width. */
+.swish-ac-popup-modal__dialog {
+	width: 100%;
+	max-width: 90vw;
+	max-height: 90vh;
+	overflow-y: auto;
+	display: flex;
+	justify-content: center;
+}
+
+.swish-ac-popup-modal__close {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	width: 32px;
+	height: 32px;
+	border: none;
+	background: transparent;
+	font-size: 24px;
+	line-height: 1;
+	cursor: pointer;
+	color: #555;
+	z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.swish-ac-popup-modal {
+		transition: none;
+	}
+}

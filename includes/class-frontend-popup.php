@@ -1,0 +1,149 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+class Swish_AC_Frontend_Popup {
+
+	private static $instance = null;
+
+	public static function instance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	private function __construct() {
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ) );
+	}
+
+	public function enqueue() {
+		if ( is_admin() || is_feed() ) {
+			return;
+		}
+
+		$popups = $this->collect_active_popups();
+		if ( empty( $popups ) ) {
+			return;
+		}
+
+		wp_enqueue_style(
+			'swish-ac-popup',
+			SWISH_AC_URL . 'assets/css/popup.css',
+			array(),
+			SWISH_AC_VERSION
+		);
+
+		wp_enqueue_script(
+			'swish-ac-popup-loader',
+			SWISH_AC_URL . 'assets/js/popup-loader.js',
+			array(),
+			SWISH_AC_VERSION,
+			true
+		);
+
+		wp_localize_script( 'swish-ac-popup-loader', 'swishAcPopups', array(
+			'restUrl' => esc_url_raw( rest_url( SWISH_AC_REST_NS . '/submit' ) ),
+			'nonce'   => wp_create_nonce( 'wp_rest' ),
+			'popups'  => $popups,
+		) );
+	}
+
+	private function collect_active_popups() {
+		$query = new WP_Query( array(
+			'post_type'      => Swish_AC_CPT_Popup::POST_TYPE,
+			'post_status'    => 'publish',
+			'posts_per_page' => 50,
+			'no_found_rows'  => true,
+		) );
+
+		$out = array();
+		foreach ( $query->posts as $post ) {
+			if ( ! $this->matches_current_request( $post->ID ) ) {
+				continue;
+			}
+
+			$html = $this->render_popup_body( $post );
+			if ( $html === '' ) {
+				continue;
+			}
+
+			$out[] = array(
+				'id'      => $post->ID,
+				'html'    => $html,
+				'trigger' => array(
+					'type'    => get_post_meta( $post->ID, '_swish_trigger_type', true ) ?: 'time',
+					'seconds' => (int) get_post_meta( $post->ID, '_swish_trigger_time_seconds', true ),
+					'percent' => (int) get_post_meta( $post->ID, '_swish_trigger_scroll_percent', true ),
+					'selector'=> (string) get_post_meta( $post->ID, '_swish_trigger_click_selector', true ),
+				),
+				'freq' => array(
+					'days'             => (int) get_post_meta( $post->ID, '_swish_freq_dismiss_days', true ),
+					'hideAfterSubmit'  => (bool) get_post_meta( $post->ID, '_swish_freq_hide_after_submit', true ),
+				),
+			);
+		}
+		return $out;
+	}
+
+	private function matches_current_request( $popup_id ) {
+		$mode = get_post_meta( $popup_id, '_swish_targeting_mode', true ) ?: 'all';
+		$auth = get_post_meta( $popup_id, '_swish_targeting_auth', true ) ?: 'any';
+
+		if ( $auth === 'logged_in' && ! is_user_logged_in() ) return false;
+		if ( $auth === 'logged_out' && is_user_logged_in() ) return false;
+
+		switch ( $mode ) {
+			case 'all':
+				return true;
+			case 'post_types':
+				$pts = get_post_meta( $popup_id, '_swish_targeting_post_types', true );
+				$pts = is_array( $pts ) ? $pts : array();
+				if ( empty( $pts ) ) return false;
+				$current = $this->current_post_type();
+				return $current && in_array( $current, $pts, true );
+			case 'urls':
+				$patterns = get_post_meta( $popup_id, '_swish_targeting_urls', true );
+				return $this->any_pattern_matches( is_array( $patterns ) ? $patterns : array() );
+			case 'exclude':
+				$patterns = get_post_meta( $popup_id, '_swish_targeting_urls', true );
+				return ! $this->any_pattern_matches( is_array( $patterns ) ? $patterns : array() );
+		}
+		return false;
+	}
+
+	private function current_post_type() {
+		if ( is_singular() ) {
+			return get_post_type( get_queried_object_id() );
+		}
+		if ( is_home() || is_front_page() ) {
+			return 'home';
+		}
+		return null;
+	}
+
+	private function any_pattern_matches( array $patterns ) {
+		if ( empty( $patterns ) ) return false;
+		$path = isset( $_SERVER['REQUEST_URI'] ) ? wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ) : '/';
+		$path = $path ?: '/';
+		foreach ( $patterns as $pattern ) {
+			$pattern = trim( (string) $pattern );
+			if ( $pattern === '' ) continue;
+			$regex = '#^' . str_replace( '\*', '.*', preg_quote( $pattern, '#' ) ) . '$#i';
+			if ( preg_match( $regex, $path ) ) return true;
+		}
+		return false;
+	}
+
+	private function render_popup_body( WP_Post $post ) {
+		$blocks = parse_blocks( $post->post_content );
+		$html = '';
+		foreach ( $blocks as $block ) {
+			if ( $block['blockName'] === 'swish/popup' ) {
+				$html .= render_block( $block );
+			}
+		}
+		return $html;
+	}
+}

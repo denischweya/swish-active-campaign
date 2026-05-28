@@ -1,0 +1,8 @@
+.editor-styles-wrapper .swish-ac-popup {
+	box-shadow: none;
+	border: 1px dashed #ccc;
+}
+
+.editor-styles-wrapper .swish-ac-popup--layout-background {
+	border-style: solid;
+}

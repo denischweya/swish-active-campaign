@@ -1,0 +1,28 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "swish/ac-form",
+	"title": "Swish AC Form",
+	"category": "widgets",
+	"icon": "email-alt",
+	"description": "ActiveCampaign form fields: optional name and email.",
+	"textdomain": "swish-active-campaign",
+	"parent": [ "swish/popup" ],
+	"supports": {
+		"html": false,
+		"multiple": false,
+		"reusable": false,
+		"inserter": true
+	},
+	"attributes": {
+		"showName":     { "type": "boolean", "default": true },
+		"nameLabel":    { "type": "string",  "default": "Name" },
+		"nameRequired": { "type": "boolean", "default": false },
+		"emailLabel":   { "type": "string",  "default": "Email" },
+		"submitLabel":  { "type": "string",  "default": "Subscribe" },
+		"buttonAlign":  { "type": "string",  "default": "left" }
+	},
+	"editorScript": "file:./index.js",
+	"style":        "file:./style.css",
+	"render":       "file:./render.php"
+}

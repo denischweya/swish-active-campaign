@@ -1,0 +1,28 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node / build artifacts (in case a build step is added later)
+node_modules/
+build/
+dist/
+*.log
+
+# WordPress / debug
+*.zip
+debug.log
+
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Claude Code per-user local overrides (project-level settings.json can be committed)
+.claude/settings.local.json

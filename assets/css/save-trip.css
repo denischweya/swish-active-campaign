@@ -1,0 +1,177 @@
+.swish-save-trip {
+	position: fixed;
+	right: 16px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 52px;
+	height: 52px;
+	padding: 0;
+	margin: 0;
+	border: none;
+	border-radius: 50%;
+	background: #ffba00;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	z-index: 9998;
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.swish-save-trip:hover,
+.swish-save-trip:focus-visible {
+	transform: translateY(-50%) scale(1.05);
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+	outline: none;
+}
+
+.swish-save-trip svg {
+	width: 22px;
+	height: 22px;
+	fill: #fff;
+	pointer-events: none;
+}
+
+.swish-save-trip__tooltip {
+	position: absolute;
+	right: calc(100% + 10px);
+	top: 50%;
+	transform: translateY(-50%);
+	background: #222;
+	color: #fff;
+	padding: 6px 10px;
+	border-radius: 4px;
+	white-space: nowrap;
+	font-size: 13px;
+	line-height: 1;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.15s ease;
+}
+
+.swish-save-trip__tooltip::after {
+	content: "";
+	position: absolute;
+	left: 100%;
+	top: 50%;
+	transform: translateY(-50%);
+	border: 5px solid transparent;
+	border-left-color: #222;
+}
+
+.swish-save-trip:hover .swish-save-trip__tooltip,
+.swish-save-trip:focus-visible .swish-save-trip__tooltip {
+	opacity: 1;
+}
+
+/* Modal */
+.swish-ac-modal {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.55);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 9999;
+	padding: 16px;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+}
+
+.swish-ac-modal.is-open {
+	opacity: 1;
+}
+
+.swish-ac-modal__dialog {
+	background: #fff;
+	border-radius: 8px;
+	max-width: 420px;
+	width: 100%;
+	padding: 28px;
+	position: relative;
+	box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+.swish-ac-modal__close {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	width: 32px;
+	height: 32px;
+	border: none;
+	background: transparent;
+	font-size: 24px;
+	line-height: 1;
+	cursor: pointer;
+	color: #555;
+}
+
+.swish-ac-modal__heading {
+	margin: 0 0 8px;
+	font-size: 22px;
+	font-weight: 600;
+}
+
+.swish-ac-modal__description {
+	margin: 0 0 16px;
+	color: #555;
+}
+
+.swish-ac-modal__field {
+	display: block;
+	margin-bottom: 12px;
+}
+
+.swish-ac-modal__field label {
+	display: block;
+	font-size: 13px;
+	margin-bottom: 4px;
+	color: #333;
+}
+
+.swish-ac-modal__field input {
+	width: 100%;
+	padding: 10px 12px;
+	font-size: 15px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-sizing: border-box;
+}
+
+.swish-ac-modal__submit {
+	display: inline-block;
+	background: #ffba00;
+	color: #222;
+	border: none;
+	padding: 10px 18px;
+	font-size: 15px;
+	font-weight: 600;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.swish-ac-modal__submit:disabled {
+	opacity: 0.7;
+	cursor: wait;
+}
+
+.swish-ac-modal__error {
+	color: #c0392b;
+	font-size: 13px;
+	margin-top: 8px;
+	min-height: 1em;
+}
+
+.swish-ac-modal__success {
+	color: #1e8449;
+	font-size: 15px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.swish-save-trip,
+	.swish-ac-modal,
+	.swish-ac-modal__tooltip {
+		transition: none;
+	}
+}
