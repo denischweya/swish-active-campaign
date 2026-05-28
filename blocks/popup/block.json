@@ -12,8 +12,7 @@
 		"multiple": false,
 		"reusable": false,
 		"inserter": true,
-		"color": { "background": true, "text": true },
-		"spacing": { "padding": true, "margin": true }
+		"color": { "background": true, "text": true }
 	},
 	"attributes": {
 		"accentColor":    { "type": "string", "default": "#ffba00" },
@@ -23,7 +22,10 @@
 		"imageAlt":       { "type": "string", "default": "" },
 		"layout":         { "type": "string", "default": "stack" },
 		"imageOpacity":   { "type": "number", "default": 0.4 },
-		"width":          { "type": "number", "default": 460 }
+		"width":          { "type": "number", "default": 460 },
+		"padding":        { "type": "number", "default": 28 },
+		"imageHeight":    { "type": "number", "default": 0 },
+		"focalPoint":     { "type": "object", "default": { "x": 0.5, "y": 0.5 } }
 	},
 	"editorScript": "file:./index.js",
 	"style":        "file:./style.css",

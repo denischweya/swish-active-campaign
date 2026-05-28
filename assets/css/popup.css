@@ -28,17 +28,30 @@
 
 .swish-ac-popup-modal__close {
 	position: absolute;
-	top: 8px;
-	right: 8px;
-	width: 32px;
-	height: 32px;
+	top: 10px;
+	right: 10px;
+	width: 30px;
+	height: 30px;
 	border: none;
-	background: transparent;
-	font-size: 24px;
+	border-radius: 50%;
+	background: var( --swish-accent, #ffba00 );
+	color: #fff;
+	font-size: 18px;
 	line-height: 1;
 	cursor: pointer;
-	color: #555;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
 	z-index: 2;
+	box-shadow: 0 2px 6px rgba( 0, 0, 0, 0.15 );
+	transition: transform 0.15s ease;
+}
+
+.swish-ac-popup-modal__close:hover,
+.swish-ac-popup-modal__close:focus-visible {
+	transform: scale( 1.1 );
+	outline: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

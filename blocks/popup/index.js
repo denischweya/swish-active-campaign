@@ -18,17 +18,18 @@
 	var MediaUpload         = blockEditor.MediaUpload;
 	var MediaUploadCheck    = blockEditor.MediaUploadCheck;
 
-	var PanelBody       = wp.components.PanelBody;
-	var TextControl     = wp.components.TextControl;
-	var TextareaControl = wp.components.TextareaControl;
-	var SelectControl   = wp.components.SelectControl;
-	var RangeControl    = wp.components.RangeControl;
-	var ColorPalette    = wp.components.ColorPalette;
-	var Button          = wp.components.Button;
-	var CheckboxControl = wp.components.CheckboxControl;
-	var ToggleControl   = wp.components.ToggleControl;
-	var FormTokenField  = wp.components.FormTokenField;
-	var Notice          = wp.components.Notice;
+	var PanelBody        = wp.components.PanelBody;
+	var TextControl      = wp.components.TextControl;
+	var TextareaControl  = wp.components.TextareaControl;
+	var SelectControl    = wp.components.SelectControl;
+	var RangeControl     = wp.components.RangeControl;
+	var ColorPalette     = wp.components.ColorPalette;
+	var Button           = wp.components.Button;
+	var CheckboxControl  = wp.components.CheckboxControl;
+	var ToggleControl    = wp.components.ToggleControl;
+	var FormTokenField   = wp.components.FormTokenField;
+	var Notice           = wp.components.Notice;
+	var FocalPointPicker = wp.components.FocalPointPicker;
 
 	var useSelect   = wp.data.useSelect;
 	var useDispatch = wp.data.useDispatch;
@@ -271,7 +272,8 @@
 			return [
 				Object.assign( {
 					imageId: 0, imageUrl: '', imageAlt: '',
-					layout: 'stack', imageOpacity: 0.4, width: 460
+					layout: 'stack', imageOpacity: 0.4, width: 460, padding: 28,
+					imageHeight: 0, focalPoint: { x: 0.5, y: 0.5 }
 				}, attrs ),
 				inner
 			];
@@ -284,9 +286,14 @@
 			var a   = props.attributes;
 			var set = props.setAttributes;
 
+			var fp = a.focalPoint || { x: 0.5, y: 0.5 };
+			var fpStr = Math.round( fp.x * 100 ) + '% ' + Math.round( fp.y * 100 ) + '%';
 			var wrapperStyle = {
 				'--swish-accent': a.accentColor,
-				'--swish-popup-width': ( a.width || 460 ) + 'px'
+				'--swish-popup-width':   ( a.width   || 460 ) + 'px',
+				'--swish-popup-padding': ( a.padding != null ? a.padding : 28 ) + 'px',
+				'--swish-img-pos': fpStr,
+				'--swish-img-height': a.imageHeight > 0 ? a.imageHeight + 'px' : 'auto'
 			};
 			if ( a.layout === 'background' && a.imageUrl ) {
 				wrapperStyle[ '--swish-bg-image' ]   = 'url("' + a.imageUrl + '")';
@@ -312,15 +319,16 @@
 						allowedTypes: [ 'image' ],
 						value: a.imageId,
 						render: function ( o ) {
+							var hasImage = !! a.imageId;
 							return el( Fragment, null,
 								el( Button, { variant: 'secondary', onClick: o.open },
-									a.imageId ? __( 'Replace image', 'swish-active-campaign' ) : __( 'Select image', 'swish-active-campaign' )
+									hasImage ? __( 'Replace image', 'swish-active-campaign' ) : __( 'Select image', 'swish-active-campaign' )
 								),
-								a.imageId && el( Button, {
+								hasImage ? el( Button, {
 									variant: 'tertiary',
 									isDestructive: true,
 									onClick: function () { set( { imageId: 0, imageUrl: '', imageAlt: '' } ); }
-								}, __( 'Remove', 'swish-active-campaign' ) )
+								}, __( 'Remove', 'swish-active-campaign' ) ) : null
 							);
 						}
 					} )
@@ -330,11 +338,24 @@
 			var inspector = el( InspectorControls, null,
 				el( PanelBody, { title: __( 'Image', 'swish-active-campaign' ), initialOpen: true },
 					imageControls(),
-					a.imageUrl && el( TextControl, {
+					a.imageUrl ? el( TextControl, {
 						label: __( 'Alt text', 'swish-active-campaign' ),
 						value: a.imageAlt,
 						onChange: function ( v ) { set( { imageAlt: v } ); }
-					} )
+					} ) : null,
+					a.imageUrl ? el( RangeControl, {
+						label: __( 'Image height (px, 0 = auto)', 'swish-active-campaign' ),
+						value: a.imageHeight || 0,
+						onChange: function ( v ) { set( { imageHeight: parseInt( v, 10 ) || 0 } ); },
+						min: 0, max: 500, step: 10,
+						help: __( 'Set a height to crop the image; uses the focal point below.', 'swish-active-campaign' )
+					} ) : null,
+					a.imageUrl && FocalPointPicker ? el( FocalPointPicker, {
+						label: __( 'Focal point', 'swish-active-campaign' ),
+						url: a.imageUrl,
+						value: a.focalPoint || { x: 0.5, y: 0.5 },
+						onChange: function ( v ) { set( { focalPoint: v } ); }
+					} ) : null
 				),
 				el( PanelBody, { title: __( 'Layout', 'swish-active-campaign' ), initialOpen: true },
 					el( SelectControl, {
@@ -358,6 +379,12 @@
 						value: a.width || 460,
 						onChange: function ( v ) { set( { width: parseInt( v, 10 ) || 460 } ); },
 						min: 320, max: 900, step: 20
+					} ),
+					el( RangeControl, {
+						label: __( 'Padding (px)', 'swish-active-campaign' ),
+						value: a.padding != null ? a.padding : 28,
+						onChange: function ( v ) { set( { padding: parseInt( v, 10 ) || 0 } ); },
+						min: 0, max: 80, step: 4
 					} )
 				),
 				el( PanelBody, { title: __( 'Popup style', 'swish-active-campaign' ), initialOpen: false },
