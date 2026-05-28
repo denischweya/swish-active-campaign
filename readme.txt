@@ -38,6 +38,10 @@ All submissions go server-side through the WordPress REST API to ActiveCampaign 
 
 Append `?swish_preview=1` to the page URL — this bypasses the localStorage frequency cap so you can re-test as many times as needed. Append `?swish_debug=1` to also stream matching/trigger info to the browser console.
 
+= How do I actually clear the dismissal cookies? =
+
+`?swish_preview=1` only bypasses the cap for the current page load; the cookie is still set. To wipe the cookies entirely, append `?swish_reset=1` to any URL — the loader clears every `swish_popup_*` entry in localStorage and logs the count to the browser console. Reload without the param afterward to test triggers normally. (You can also delete the keys manually in DevTools → Application → Local Storage.)
+
 = Why isn't my popup showing? =
 
 In order, check:

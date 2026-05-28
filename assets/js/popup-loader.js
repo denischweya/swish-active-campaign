@@ -13,12 +13,27 @@
 	var storage = safeStorage();
 	var DEBUG   = /[?&]swish_debug=1/.test( location.search );
 	var PREVIEW = /[?&]swish_preview=1/.test( location.search );
+	var RESET   = /[?&]swish_reset=1/.test( location.search );
 
 	function dbg() {
 		if ( ! DEBUG ) return;
 		var a = Array.prototype.slice.call( arguments );
 		a.unshift( '[swish]' );
 		console.log.apply( console, a );
+	}
+
+	if ( RESET ) {
+		var cleared = 0;
+		try {
+			for ( var i = window.localStorage.length - 1; i >= 0; i-- ) {
+				var k = window.localStorage.key( i );
+				if ( k && k.indexOf( 'swish_popup_' ) === 0 ) {
+					window.localStorage.removeItem( k );
+					cleared++;
+				}
+			}
+		} catch ( e ) {}
+		console.log( '[swish] reset cleared ' + cleared + ' popup cookie(s); reload without ?swish_reset to test triggers normally.' );
 	}
 
 	dbg( 'payload', cfg );
