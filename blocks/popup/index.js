@@ -30,6 +30,7 @@
 	var FormTokenField   = wp.components.FormTokenField;
 	var Notice           = wp.components.Notice;
 	var FocalPointPicker = wp.components.FocalPointPicker;
+	var BoxControl       = wp.components.BoxControl || wp.components.__experimentalBoxControl;
 
 	var useSelect   = wp.data.useSelect;
 	var useDispatch = wp.data.useDispatch;
@@ -49,6 +50,24 @@
 		[ 'core/paragraph', { content: 'Sign up to hear about new trips.' } ],
 		[ 'swish/ac-form' ]
 	];
+
+	// Format the padding attribute (object | number | string) into a CSS shorthand value.
+	function paddingToCss( p ) {
+		if ( p == null || p === '' ) return null;
+		if ( typeof p === 'number' ) return p + 'px';
+		if ( typeof p === 'string' ) return p;
+		if ( typeof p === 'object' ) {
+			var sides = [ 'top', 'right', 'bottom', 'left' ];
+			var any   = false;
+			var parts = sides.map( function ( s ) {
+				var v = p[ s ];
+				if ( v != null && v !== '' ) { any = true; return v; }
+				return '0';
+			} );
+			return any ? parts.join( ' ' ) : null;
+		}
+		return null;
+	}
 
 	// Read/write a post meta key via core/editor.
 	function useMeta( key ) {
@@ -272,7 +291,8 @@
 			return [
 				Object.assign( {
 					imageId: 0, imageUrl: '', imageAlt: '',
-					layout: 'stack', imageOpacity: 0.4, width: 460, padding: 28,
+					layout: 'stack', imageOpacity: 0.4, width: 460,
+					padding: { top: '28px', right: '28px', bottom: '28px', left: '28px' },
 					imageHeight: 0, focalPoint: { x: 0.5, y: 0.5 }
 				}, attrs ),
 				inner
@@ -288,10 +308,11 @@
 
 			var fp = a.focalPoint || { x: 0.5, y: 0.5 };
 			var fpStr = Math.round( fp.x * 100 ) + '% ' + Math.round( fp.y * 100 ) + '%';
+			var paddingCss = paddingToCss( a.padding );
 			var wrapperStyle = {
 				'--swish-accent': a.accentColor,
 				'--swish-popup-width':   ( a.width   || 460 ) + 'px',
-				'--swish-popup-padding': ( a.padding != null ? a.padding : 28 ) + 'px',
+				'--swish-popup-padding': paddingCss || '28px',
 				'--swish-img-pos': fpStr,
 				'--swish-img-height': a.imageHeight > 0 ? a.imageHeight + 'px' : 'auto'
 			};
@@ -380,12 +401,20 @@
 						onChange: function ( v ) { set( { width: parseInt( v, 10 ) || 460 } ); },
 						min: 320, max: 900, step: 20
 					} ),
-					el( RangeControl, {
-						label: __( 'Padding (px)', 'swish-active-campaign' ),
-						value: a.padding != null ? a.padding : 28,
-						onChange: function ( v ) { set( { padding: parseInt( v, 10 ) || 0 } ); },
-						min: 0, max: 80, step: 4
-					} )
+					BoxControl ? el( BoxControl, {
+						label: __( 'Padding', 'swish-active-campaign' ),
+						values: ( a.padding && typeof a.padding === 'object' )
+							? a.padding
+							: { top: '28px', right: '28px', bottom: '28px', left: '28px' },
+						onChange: function ( next ) { set( { padding: next } ); },
+						allowReset: true,
+						units: [
+							{ value: 'px', label: 'px' },
+							{ value: '%',  label: '%' },
+							{ value: 'em', label: 'em' },
+							{ value: 'rem', label: 'rem' }
+						]
+					} ) : null
 				),
 				el( PanelBody, { title: __( 'Popup style', 'swish-active-campaign' ), initialOpen: false },
 					el( 'label', { className: 'components-base-control__label' },

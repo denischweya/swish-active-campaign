@@ -23,7 +23,7 @@
 		"layout":         { "type": "string", "default": "stack" },
 		"imageOpacity":   { "type": "number", "default": 0.4 },
 		"width":          { "type": "number", "default": 460 },
-		"padding":        { "type": "number", "default": 28 },
+		"padding":        { "type": "object", "default": null },
 		"imageHeight":    { "type": "number", "default": 0 },
 		"focalPoint":     { "type": "object", "default": { "x": 0.5, "y": 0.5 } }
 	},

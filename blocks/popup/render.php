@@ -18,15 +18,44 @@ $a = wp_parse_args( $attributes, array(
 	'layout'         => 'stack',
 	'imageOpacity'   => 0.4,
 	'width'          => 460,
-	'padding'        => 28,
+	'padding'        => null,
 	'imageHeight'    => 0,
 	'focalPoint'     => array( 'x' => 0.5, 'y' => 0.5 ),
 ) );
 
 $layout       = in_array( $a['layout'], array( 'stack', 'two-column', 'background' ), true ) ? $a['layout'] : 'stack';
 $width        = max( 280, min( 1200, intval( $a['width'] ) ) );
-$padding      = max( 0, min( 120, intval( $a['padding'] ) ) );
 $image_height = max( 0, intval( $a['imageHeight'] ) );
+
+/**
+ * Format the padding attribute (object | number | string | null) into a CSS shorthand.
+ * Each side falls back to '0' if empty so a partially-filled BoxControl is still valid.
+ */
+$padding_css = null;
+if ( is_array( $a['padding'] ) ) {
+	$sides = array( 'top', 'right', 'bottom', 'left' );
+	$any   = false;
+	$parts = array();
+	foreach ( $sides as $s ) {
+		$v = isset( $a['padding'][ $s ] ) ? $a['padding'][ $s ] : '';
+		if ( $v !== '' && $v !== null ) {
+			$any     = true;
+			$parts[] = $v;
+		} else {
+			$parts[] = '0';
+		}
+	}
+	if ( $any ) {
+		$padding_css = implode( ' ', $parts );
+	}
+} elseif ( is_numeric( $a['padding'] ) ) {
+	$padding_css = intval( $a['padding'] ) . 'px';
+} elseif ( is_string( $a['padding'] ) && $a['padding'] !== '' ) {
+	$padding_css = $a['padding'];
+}
+if ( ! $padding_css ) {
+	$padding_css = '28px';
+}
 
 $fp     = is_array( $a['focalPoint'] ) ? $a['focalPoint'] : array( 'x' => 0.5, 'y' => 0.5 );
 $fp_x   = max( 0, min( 1, isset( $fp['x'] ) ? floatval( $fp['x'] ) : 0.5 ) );
@@ -35,7 +64,7 @@ $fp_str = round( $fp_x * 100 ) . '% ' . round( $fp_y * 100 ) . '%';
 
 $style  = '--swish-accent: ' . esc_attr( $a['accentColor'] ) . ';';
 $style .= '--swish-popup-width: ' . $width . 'px;';
-$style .= '--swish-popup-padding: ' . $padding . 'px;';
+$style .= '--swish-popup-padding: ' . esc_attr( $padding_css ) . ';';
 $style .= '--swish-img-pos: ' . $fp_str . ';';
 $style .= '--swish-img-height: ' . ( $image_height > 0 ? $image_height . 'px' : 'auto' ) . ';';
 if ( $layout === 'background' && ! empty( $a['imageUrl'] ) ) {
